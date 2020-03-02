@@ -32,6 +32,10 @@
           @click:append-outer="sendMessage"
         ></v-text-field>
       </v-flex>
+       <v-spacer></v-spacer>
+        <v-flex >
+           <v-btn flat small color="error" @click="clearAll">Clear All</v-btn>
+        </v-flex>
     </v-layout>
   </v-container>
 </template>
@@ -64,6 +68,11 @@ export default {
         this.client.send(JSON.stringify({ message: this.inputMessage }));
       }
       this.inputMessage = "";
+    },
+    clearAll() {
+      if (this.client.readyState === this.client.OPEN) {
+        this.client.send(JSON.stringify({ action: 'clearAll' }));
+      }      
     }
   },
   mounted() {
