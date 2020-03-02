@@ -1,6 +1,6 @@
 <template>
   <v-container grid-list-md text-xs-center>
-    <v-layout row wrap>
+    <v-layout row wrap align-center>
       <v-flex xs12>
         <v-card>
           <v-toolbar color="cyan" dark>
@@ -8,7 +8,7 @@
             <v-spacer></v-spacer>
           </v-toolbar>
 
-          <v-list two-line style="max-height: 300px" class="overflow-y-auto" id="scroll-target">
+          <v-list two-line style="height: 300px" class="overflow-y-auto" id="scroll-target">
             <div id="scrolled-content">
               <template v-for="(message, index) in messagesReceived">
                 <v-list-item :key="index">
@@ -16,22 +16,21 @@
                     <v-list-item-subtitle v-html="message"></v-list-item-subtitle>
                   </v-list-item-content>
                 </v-list-item>
-                <v-divider :key="index" />
               </template>
             </div>
           </v-list>
         </v-card>
       </v-flex>
-      <v-flex>
-        <v-text-field
-          label="Solo"
-          placeholder="Enter message"
-          solo
-          append-outer-icon="done"
-          v-model="inputMessage"
-          @click:append-outer="sendMessage"
-        ></v-text-field>
-      </v-flex>
+        <v-flex xs12>
+          <v-text-field
+            label="Solo"
+            placeholder="Enter message"
+            solo
+            append-outer-icon="done"
+            v-model="inputMessage"
+            @click:append-outer="sendMessage"
+          ></v-text-field>
+        </v-flex>
        <v-spacer></v-spacer>
         <v-flex >
            <v-btn flat small color="error" @click="clearAll">Clear All</v-btn>
@@ -97,7 +96,7 @@ export default {
 
     this.client.onmessage = this.handleMessage;
 
-    // remember dom reference for container 
+    // remember dom reference for container
     this.container = document.getElementById("scroll-target");
   },
   updated() {
