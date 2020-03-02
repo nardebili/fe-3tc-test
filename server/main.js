@@ -16,7 +16,14 @@ wss.on("connection", function(socket) {
   // When data is received
   socket.on("message", function(message) {
     console.log("Received: " + message);
-    messages.push(message);
+    const parsedMsg = JSON.parse(message)
+    if (parsedMsg.message) {
+      messages.push(message);
+    } else {
+      console.log('Received clear all action')
+      // assume its clear all action
+      messages.length = 0
+    }
     broadcast();
   });
 
