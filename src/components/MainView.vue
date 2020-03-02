@@ -1,14 +1,38 @@
 <template>
-  <v-container>
-    <v-row class="text-center">
-      <v-col cols="12">
-        <v-img :src="require('../assets/logo.svg')" class="my-3" contain height="200" />
-      </v-col>
+  <v-container grid-list-md text-xs-center>
+    <v-layout row wrap>
+      <v-flex xs12>
+        <v-card>
+          <v-toolbar color="cyan" dark>
+            <v-toolbar-title>Messages</v-toolbar-title>
+            <v-spacer></v-spacer>
+          </v-toolbar>
 
-      <v-col class="mb-5" cols="12">
-        <v-btn @click="sendNumber()">Click here</v-btn>
-      </v-col>
-    </v-row>
+          <v-list two-line style="max-height: 300px" class="overflow-y-auto" id="scroll-target">
+            <div id="scrolled-content">
+              <template v-for="(message, index) in messagesReceived">
+                <v-list-item :key="index">
+                  <v-list-item-content>
+                    <v-list-item-subtitle v-html="message"></v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-divider :key="index" />
+              </template>
+            </div>
+          </v-list>
+        </v-card>
+      </v-flex>
+      <v-flex>
+        <v-text-field
+          label="Solo"
+          placeholder="Enter message"
+          solo
+          append-outer-icon="done"
+          v-model="inputMessage"
+          @click:append-outer="sendMessage"
+        ></v-text-field>
+      </v-flex>
+    </v-layout>
   </v-container>
 </template>
 
@@ -16,15 +40,30 @@
 export default {
   name: "MainView",
 
-  data: () => ({
-    client: null
-  }),
+  data() {
+    return {
+      client: null,
+      messagesReceived: ["Hello"],
+      inputMessage: "",
+      container: null,
+      elem: null,
+      scrollTop: 400
+    };
+  },
   methods: {
-    sendNumber() {
-      if (this.client.readyState === this.client.OPEN) {
-        var number = Math.round(Math.random() * 0xffffff);
-        this.client.send(number.toString());
+    handleMessage(event) {
+      const data = JSON.parse(event.data);
+      this.messagesReceived = [];
+      for (const msgObj of data.messages) {
+        this.messagesReceived.push(JSON.parse(msgObj).message);
       }
+    },
+    sendMessage() {
+      if (!this.inputMessage.length) return;
+      if (this.client.readyState === this.client.OPEN) {
+        this.client.send(JSON.stringify({ message: this.inputMessage }));
+      }
+      this.inputMessage = "";
     }
   },
   mounted() {
@@ -47,12 +86,17 @@ export default {
       console.log(code, reason);
     };
 
-    this.client.onmessage = function(event) {
-      console.log(event.data);
-    };
+    this.client.onmessage = this.handleMessage;
+
+    // remember dom reference for container 
+    this.container = document.getElementById("scroll-target");
   },
-  beforeDestroy () {
-    this.client.close()
+  updated() {
+    // scroll to bottom on update
+    this.container.scrollTop = this.container.scrollHeight;
+  },
+  beforeDestroy() {
+    this.client.close();
   }
 };
 </script>
